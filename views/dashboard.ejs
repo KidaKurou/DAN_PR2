@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <%- include('header') %>
+
+        <%- include('nav') %>
+
+        <main>
+            <button class="add-button" onclick="openModal('expense')">+ Добавить расход</button>
+            <button class="add-button" onclick="openModal('income')">+ Добавить доход</button>
+            <p id='balance'>Общий баланс: <%= totalIncomes - totalExpenses %>
+            </p>
+            <h3>Выберите период:</h3>
+            <form action="/dashboard/select-period" method="post" class="period-form">
+                <% ['today', 'week' , 'month' , 'all_time' ].forEach(function(p) { %>
+                <label>
+                    <input type="radio" name="period" value="<%= p %>" <%=period===p ? 'checked' : '' %>>
+                    <%= translatePeriod(p) %>
+                </label>
+                <% }); %>
+                <button type="submit" name="submitPeriod">Применить</button>
+            </form>
+            <button onclick="toggleCustomPeriod()" class="custom-period-btn">Ручной период</button>
+            <div id="customPeriod" style="display: none;">
+                <form action="/dashboard/custom-period" method="post">
+                    <label>Начальная дата:</label>
+                    <input type="date" name="start_date" required value="<%= startDate %>">
+                    <label>Конечная дата:</label>
+                    <input type="date" name="end_date" required value="<%= endDate %>">
+                    <button type="submit" name="submitCustomPeriod" class="custom-period-btn">Применить</button>
+                </form>
+            </div>
+            <!-- Сводка -->
+            <% if ((typeof totalIncome !=='undefined' || typeof totalExpense !=='undefined') && ((totalIncome + totalExpense) !== 0)) { %>
+            <p id='balance'>Баланс: <%= totalIncome - totalExpense %>
+            </p>
+            <p id='expenses'>Расходы: <%= totalExpense || 0 %>
+            </p>
+            <p id='income'>Доходы: <%= totalIncome || 0 %>
+            </p>
+            <% } else if (totalIncome === 0 && totalExpense === 0) { %>
+            <p>Сегодня еще на было операций</p>
+            <% } else { %>
+            <p>Сегодня еще на было операций</p>
+            <% } %>
+            <% if (!addTransaction) { %>
+            <h2>Последние транзакции</h2>
+            <div class='transaction-list'>
+                <% recentTransactions.forEach(function(transaction) { %>
+                <div class='transaction-card-no-act'>
+                    <div class="description-category">
+                        <p class="description-large">
+                            <%= transaction.description %>
+                        </p>
+                        <p class="category-small">
+                            <%= transaction.category_name %>
+                        </p>
+                    </div>
+                    <div class="amount-date">
+                        <p class="<%= transaction.type === 'expense' ? 'amount-red' : 'amount-green' %>">
+                            <%= transaction.type==='expense' ? '-' : '' %>
+                            <%= transaction.amount %>
+                        </p>
+                        <p class="date">
+                            <%= transaction.date.toString().substring(0, 10) %>
+                        </p>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+            <% } %>
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span onclick="closeModal()" style="float: right; cursor: pointer;">×</span>
+                    <h2 id="modal-title">Добавить транзакцию</h2>
+                    <form action="/dashboard/add-transaction" method="post">
+                        <label for="description">Описание:</label>
+                        <input type="text" id="description" name="description" rows="3"></input>
+                        <label for="amount">Сумма:</label>
+                        <input type="number" id="amount" name="amount" required>
+                        <label for="date">Дата:</label>
+                        <input type="date" id="date" name="date" required>
+                        <label for="category">Категория:</label>
+                        <select id="category" name="category" required>
+                            <!-- Categories will be populated by JavaScript -->
+                        </select>
+                        <input type="hidden" id="transaction_type" name="type" value="">
+                        <button type="submit" name="add_transaction">Добавить
+                            транзакцию</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        function toggleCustomPeriod() {
+            var customPeriod = document.getElementById("customPeriod");
+            customPeriod.style.display = customPeriod.style.display === "none" ? "flex" : "none";
+        }
+    </script>
+    <script>
+        let incomeCategories;
+        let expenseCategories;
+
+        function openModal(type) {
+            console.log('Открывается модальное окно с типом:', type);
+            document.getElementById('myModal').style.display = 'block';
+            document.getElementById('modal-title').innerText = `Добавить ${type === 'expense' ? 'расход' : 'доход'}`;
+            // Установка значения переменной $transaction_type в зависимости от открытого окна
+            var transactionTypeInput = document.getElementById('transaction_type');
+            transactionTypeInput.value = type;
+            console.log('Установлено значение transaction_type:', transactionTypeInput.value);
+
+            incomeCategories = <%- JSON.stringify(incomeCategories) %>;
+            expenseCategories = <%- JSON.stringify(expenseCategories) %>;
+
+            var categorySelect = document.getElementById('category');
+            categorySelect.innerHTML = '';
+            const categories = type === 'income' ? incomeCategories : expenseCategories;
+            categories.forEach(function(category) {
+                var option = document.createElement('option');
+                option.value = category;
+                option.text = category;
+                categorySelect.add(option);
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('myModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('myModal')) {
+                closeModal();
+            }
+        }
+    </script>
+
+</body>
+
+</html>

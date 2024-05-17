@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/style_acc.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <%- include('nav') %>
+
+        <%- include('header') %>
+
+        <main>
+            <% if (!editing_mode) { %>
+              <div class="user-info">
+                <h2>Текущая информация:</h2>
+                <p><strong>Имя:</strong> <%= user.name %></p>
+                <p><strong>Фамилия:</strong> <%= user.surname %></p>
+                <p><strong>Отчество:</strong> <%= user.midname %></p>
+                <p><strong>Логин:</strong> <%= user.username %></p>
+                <p><strong>Email:</strong> <%= user.email %></p>
+              </div>
+              <button type="button" id="editButton" class="edit-button">Редактировать</button>
+            <% } else { %>
+              <form action="/update_account" method="post" class="reg-form">
+                <label for="new_name">Новое имя:</label>
+                <input type="text" id="new_name" name="new_name" value="<%= user.name %>" required>
+      
+                <label for="new_surname">Новая фамилия:</label>
+                <input type="text" id="new_surname" name="new_surname" value="<%= user.surname %>" required>
+      
+                <label for="new_midname">Новое отчество:</label>
+                <input type="text" id="new_midname" name="new_midname" value="<%= user.midname %>" required>
+      
+                <label for="new_username">Новый логин:</label>
+                <input type="text" id="new_username" name="new_username" value="<%= user.username %>" required>
+      
+                <label for="new_email">Новый Email:</label>
+                <input type="email" id="new_email" name="new_email" value="<%= user.email %>" required>
+      
+                <label for="new_password">Новый пароль:</label>
+                <input type="password" id="new_password" name="new_password" required>
+      
+                <button type="submit" name="update_account" class="save-button">Сохранить изменения</button>
+                <a href="/account?edit=false" class="cancel-button">Отменить</a>
+              </form>
+            <% } %>
+      
+            <form action="/logout" method="post">
+              <button type="submit" name="logout" class="logout-button">Выйти из аккаунта</button>
+            </form>
+      
+            <% if (messages && messages.error) { %>
+              <p class="error-message"><%= messages.error %></p>
+            <% } %>
+            <% if (messages && messages.success) { %>
+              <p class="success-message"><%= messages.success %></p>
+            <% } %>
+          </main>
+    </div>
+
+    <script src="../static/js/edit_account.js"></script>
+</body>
+
+</html>

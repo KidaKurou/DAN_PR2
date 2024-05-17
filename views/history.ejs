@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История транзакций</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <%- include('header') %>
+
+        <%- include('nav') %>
+
+        <main>
+            <div class='transaction-container'>
+                <% Object.keys(transactionsByMonth).forEach(month => { %>
+                <div class='month-transactions'>
+                    <div class='month'>
+                        <div class='month-header'><%= month %></div>
+                    </div>
+                    <div class='transactions'>
+                        <% transactionsByMonth[month].forEach(transaction => { %>
+                        <div class='transaction-card'>
+                            <div class='description-category'>
+                                <p class='description-large'><%= transaction.description %></p>
+                                <p class='category-small'><%= transaction.category_name %></p>
+                            </div>
+                            <div class='amount-date'>
+                                <p class='<%= transaction.type === "expense" ? "amount-red" : "amount-green" %>'>
+                                    <%= transaction.type === "expense" ? "-" : "" %><%= transaction.amount %>
+                                </p>
+                                <p class='date'><%= transaction.date.toString().substring(0, 10) %></p>
+                            </div>
+                            <div class='transaction-actions'>
+                                <button class='delete-transaction' data-transaction-id='<%= transaction.transaction_id %>'>&times;</button>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+            <div class="pagination">
+                <form id="pagination-form" method="get" action="/history">
+                    <label for="transactions-per-page">Показать записей:</label>
+                    <select id="transactions-per-page" name="per_page" onchange="submitForm()">
+                        <option value="2" <%= transactionsPerPage == 2 ? 'selected' : '' %>>2</option>
+                        <option value="10" <%= transactionsPerPage == 10 ? 'selected' : '' %>>10</option>
+                        <option value="20" <%= transactionsPerPage == 20 ? 'selected' : '' %>>20</option>
+                        <option value="50" <%= transactionsPerPage == 50 ? 'selected' : '' %>>50</option>
+                        <option value="<%= totalTransactions %>" <%= transactionsPerPage == totalTransactions ? 'selected' : '' %>>Все</option>
+                    </select>
+                </form>
+
+                <% if (currentPage > 1) { %>
+                <a href="/history?page=<%= currentPage - 1 %>&per_page=<%= transactionsPerPage %>">Назад</a>
+                <% } %>
+
+                <% if (currentPage > 3) { %>
+                <a href="/history?page=1&per_page=<%= transactionsPerPage %>">1</a>
+                <% if (currentPage > 4) { %>
+                ...
+                <% } %>
+                <% } %>
+
+                <% for (let page = Math.max(1, currentPage - 2); page <= Math.min(totalPages, currentPage + 2); page++) { %>
+                <a href="/history?page=<%= page %>&per_page=<%= transactionsPerPage %>" class="<%= page === currentPage ? 'active' : '' %>"><%= page %></a>
+                <% } %>
+
+                <% if (currentPage < totalPages - 2) { %>
+                <% if (currentPage < totalPages - 3) { %>
+                ...
+                <% } %>
+                <a href="/history?page=<%= totalPages %>&per_page=<%= transactionsPerPage %>"><%= totalPages %></a>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                <a href="/history?page=<%= currentPage + 1 %>&per_page=<%= transactionsPerPage %>">Дальше</a>
+                <% } %>
+            </div>
+        </main>
+
+        <button id="scrollToTopBtn" title="Наверх">Наверх</button>
+
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script>
+            function submitForm() {
+                document.getElementById('pagination-form').submit();
+            }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                var scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+                window.addEventListener("scroll", function() {
+                    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                        scrollToTopBtn.style.display = "block";
+                        scrollToTopBtn.style.opacity = "1";
+                    } else {
+                        scrollToTopBtn.style.opacity = "0";
+                        setTimeout(function() {
+                            scrollToTopBtn.style.display = "none";
+                        }, 300);
+                    }
+                });
+
+                scrollToTopBtn.addEventListener("click", function() {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                });
+
+                // Находим все кнопки удаления транзакций
+                var deleteButtons = document.querySelectorAll('.delete-transaction');
+
+                // Добавляем обработчик события для каждой кнопки
+                deleteButtons.forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        // Получаем идентификатор транзакции из data-атрибута
+                        var transactionId = button.dataset.transactionId;
+
+                        // запрос для удаления транзакции
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', '/history/delete_transaction', true);
+                        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState == 4 && xhr.status == 200) {
+                                location.reload();
+                            }
+                        };
+                        xhr.send('transaction_id=' + transactionId);
+                    });
+                });
+            });
+        </script>
+</body>
+
+</html>

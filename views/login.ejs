@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+    <link rel="stylesheet" href="../static/css/style_login.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Вход</h1>
+        <p>Здравствуйте! Войдите, используя свой email или логин</p>
+        <div class="login-box">
+            <form action="/login" method="post" class="login-form">
+                <label for="username">Логин или email:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Войти</button>
+            </form>
+            <p class="no-acc">Еще нет аккаунта? <a href="/register">Регистрация</a></p>
+        </div>
+        <% if (error_message) { %>
+            <p class="error-message"><%= error_message %></p>
+        <% } %>
+    </div>
+</body>
+</html>

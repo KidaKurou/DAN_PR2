@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/style_cat.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <%- include('nav') %>
+
+        <%- include('header') %>
+
+        <main>
+            <h2>Добавить новую категорию</h2>
+            <form action="/categories/add_category" method="post" class="category-form">
+                <label for="new_category" class="category-label">Новая категория:</label>
+                <input type="text" id="new_category" name="new_category" required class="category-input">
+                <label for="category_type" class="category-label">Тип категории:</label>
+                <select id="category_type" name="category_type" required class="category-select">
+                    <option value="expense">Расход</option>
+                    <option value="income">Доход</option>
+                </select>
+                <button type="submit" name="add_category" class="category-button">Добавить категорию</button>
+            </form>
+            <div class="category-container">
+                <div class="expense-categories">
+                    <h3>Расходы</h3>
+                    <% if (expenseCategories.length > 0) { %>
+                    <div class='category-cards'>
+                        <% expenseCategories.forEach(function(category) { %>
+                        <div class='category-card'>
+                            <span class='category-name'><%= category.name %></span>
+                            <div class='category-actions'>
+                                <button class='delete-category' data-category-id='<%= category.category_id %>'>x</button>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                    <% } else { %>
+                    <p>У вас нет категорий расходов.</p>
+                    <% } %>
+                </div>
+                <div class="income-categories">
+                    <h3>Доходы</h3>
+                    <% if (incomeCategories.length > 0) { %>
+                    <div class='category-cards'>
+                        <% incomeCategories.forEach(function(category) { %>
+                        <div class='category-card'>
+                            <span class='category-name'><%= category.name %></span>
+                            <div class='category-actions'>
+                                <button class='delete-category' data-category-id="<%= category.category_id %>">x</button>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                    <% } else { %>
+                    <p>У вас нет категорий доходов.</p>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+
+
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script src="../static/js/delete_categories.js"></script>
+</body>
+
+</html>

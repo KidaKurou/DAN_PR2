@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="../static/css/style_reg.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="reg-container">
+        <h1>Регистрация</h1>
+        <div class="reg-box">
+            <form action="/register" method="post" class="reg-form">
+                <label for="name">Имя:</label>
+                <input type="text" id="name" name="name" placeholder="Ваше имя" value="<%= form_data.name %>" required>
+                <label for="surname">Фамилия:</label>
+                <input type="text" id="surname" name="surname" placeholder="Ваша фамилия" value="<%= form_data.surname %>" required>
+                <label for="midname">Отчество:</label>
+                <input type="text" id="midname" name="midname" placeholder="Ваше отчество (необязательно)" value="<%= form_data.midname %>">
+                <label for="username">Уникальный логин:</label>
+                <input type="text" id="username" name="username" placeholder="WebMaster3000" value="<%= form_data.username %>" required>
+                <label for="email">Электронная почта:</label>
+                <input type="email" id="email" name="email" placeholder="user@mail.ru" value="<%= form_data.email %>" required>
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" placeholder="Пароль" required>
+                <label for="confirm_password">Подтвердите пароль:</label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Подтверждение пароля" required>
+                <button type="submit">Зарегистрироваться</button>
+            </form>
+            <p class="have-acc">Уже есть аккаунт? <a href="/login">Войти</a></p>
+        </div>
+        <% if (error_message) { %>
+            <p class="error-message"><%= error_message %></p>
+        <% } %>
+        <% if (success_message) { %>
+            <p class="success-message"><%= success_message %></p>
+        <% } %>
+    </div>
+</body>
+
+</html>

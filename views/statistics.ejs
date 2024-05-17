@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <script>
+        function toggleCustomPeriod() {
+            var customPeriod = document.getElementById("customPeriod");
+            customPeriod.style.display = customPeriod.style.display === "none" ? "flex" : "none";
+        }
+    </script>
+
+</head>
+
+<body>
+    <div class="container">
+        <%- include('header') %>
+
+        <%- include('nav') %>
+
+        <main>
+            <h3>Выберите период:</h3>
+            <form action="/statistics/select-period" method="post" class="period-form">
+              <label>
+                <input type="radio" name="period" value="today" <%= period === 'Сегодня' ? 'checked' : '' %>> Сегодня
+              </label>
+              <label>
+                <input type="radio" name="period" value="week" <%= period === 'Неделя' ? 'checked' : '' %>> Неделя
+              </label>
+              <label>
+                <input type="radio" name="period" value="month" <%= period === 'Месяц' ? 'checked' : '' %>> Месяц
+              </label>
+              <label>
+                <input type="radio" name="period" value="all_time" <%= period === 'За все время' ? 'checked' : '' %>> За все время
+              </label>
+              <button type="submit" name="submitPeriod">Применить</button>
+            </form>
+      
+            <button onclick="toggleCustomPeriod()" class="custom-period-btn">Ручной период</button>
+            <div id="customPeriod" style="display: none;">
+              <form action="/statistics/custom-period" method="post">
+                <label>Начальная дата:</label>
+                <input type="date" name="start_date" required value="<%= startDate %>">
+                <label>Конечная дата:</label>
+                <input type="date" name="end_date" required value="<%= endDate %>">
+                <button type="submit" name="submitCustomPeriod" class="custom-period-btn">Применить</button>
+              </form>
+            </div>
+      
+            <p id='total-balance'>Общий баланс: <%= totalIncomes - totalExpenses %></p>
+            <p id='balance'>Баланс: <%= totalIncome - totalExpense %></p>
+            <p id='expenses'>Расходы: <%= totalExpense %></p>
+            <p id='income'>Доходы: <%= totalIncome %></p>
+      
+            <h3>Суммы по категориям:</h3>
+            <ul>
+              <% Object.keys(categorySummary).forEach(categoryName => { %>
+                <% if (categorySummary[categoryName] != 0) { %>
+                  <li><%= categoryName %>: <%= categorySummary[categoryName] %></li>
+                <% } %>
+              <% }); %>
+            </ul>
+            <% if (maxCategory.name) { %>
+                <p>Категория с наибольшей суммой: <%= maxCategory.name %> (<%= maxCategory.amount %>)</p>
+              <% } else { %>
+                <p>Нет данных о категориях</p>
+              <% } %>
+          </main>
+
+    </div>
+    </div>
+</body>
+
+</html>
